@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Project } from "@/types/project";
 import { Filters, FiltersBar } from "@/components/FiltersBar";
@@ -99,10 +100,8 @@ export function ProjectsBrowser({
     }
 
     const queryString = params.toString();
-    router.replace(
-      queryString ? `${pathname}?${queryString}` : pathname,
-      { scroll: false }
-    );
+    const nextRoute = `${pathname}${queryString ? `?${queryString}` : ""}` as Route;
+    router.replace(nextRoute, { scroll: false });
   };
 
   const visibleProjects = useMemo(() => {
