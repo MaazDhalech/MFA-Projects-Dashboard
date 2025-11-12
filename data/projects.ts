@@ -61,14 +61,14 @@ function mapUpdate(row: UpdateRow): ProjectUpdate {
 export async function listProjects(): Promise<Project[]> {
   const client = requireSupabase();
   const { data, error } = await client
-    .from<ProjectRow>("project_public")
+    .from("project_public")
     .select("*");
 
   if (error) {
     throw new Error(`Failed to load projects: ${error.message}`);
   }
 
-  return (data ?? [])
+  return ((data ?? []) as ProjectRow[])
     .map(mapProject)
     .sort((a, b) => {
       const aPriority = a.status === "active" ? 0 : 1;
@@ -85,7 +85,7 @@ export async function listProjects(): Promise<Project[]> {
 export async function getProjectById(id: string): Promise<Project | null> {
   const client = requireSupabase();
   const { data, error } = await client
-    .from<ProjectRow>("project_public")
+    .from("project_public")
     .select("*")
     .eq("id", id)
     .single();
@@ -98,13 +98,13 @@ export async function getProjectById(id: string): Promise<Project | null> {
     throw new Error(`Failed to load project ${id}: ${error.message}`);
   }
 
-  return data ? mapProject(data) : null;
+  return data ? mapProject(data as ProjectRow) : null;
 }
 
 export async function listUpdates(projectId: string): Promise<ProjectUpdate[]> {
   const client = requireSupabase();
   const { data, error } = await client
-    .from<UpdateRow>("updates_public")
+    .from("updates_public")
     .select("*")
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
@@ -113,5 +113,5 @@ export async function listUpdates(projectId: string): Promise<ProjectUpdate[]> {
     throw new Error(`Failed to load updates for ${projectId}: ${error.message}`);
   }
 
-  return (data ?? []).map(mapUpdate);
+  return ((data ?? []) as UpdateRow[]).map(mapUpdate);
 }
