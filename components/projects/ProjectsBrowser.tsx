@@ -29,16 +29,28 @@ function areFiltersEqual(a: Filters, b: Filters) {
   );
 }
 
+const STATUS_VALUES = ["planned", "active", "blocked", "done", "all"] as const;
+type StatusFilter = (typeof STATUS_VALUES)[number];
+
+function normalize(v: string | null): string | null {
+  return v && v.trim() !== "" ? v : null;
+}
+
+function isStatus(v: string | null): v is StatusFilter {
+  return !!v && (STATUS_VALUES as readonly string[]).includes(v);
+}
+
 function parseFilters(params: URLSearchParams): Filters {
-  const statusParam = params.get("status") as Filters["status"] | null;
-  const typeParam = params.get("type");
-  const countryParam = params.get("country");
+  const searchParam  = normalize(params.get("search"));
+  const statusParam  = normalize(params.get("status"));
+  const typeParam    = normalize(params.get("type"));
+  const countryParam = normalize(params.get("country"));
+
   return {
-    search: params.get("search") ?? defaultFilters.search,
-    status: statusParam && statusParam !== "" ? statusParam : defaultFilters.status,
-    type: typeParam && typeParam !== "" ? typeParam : defaultFilters.type,
-    country:
-      countryParam && countryParam !== "" ? countryParam : defaultFilters.country,
+    search:  searchParam ?? defaultFilters.search,
+    status:  isStatus(statusParam) ? statusParam : defaultFilters.status,
+    type:    typeParam ?? defaultFilters.type,
+    country: countryParam ?? defaultFilters.country,
   };
 }
 
